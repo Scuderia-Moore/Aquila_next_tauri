@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import Image from "next/image";
 import { useCallback, useState } from "react";
 import { RoundedButton } from "@/components/RoundedButton";
+import { DiscordOAuthButton } from "@/components/DiscordOAuthButton";
 
 export default function Home() {
   const [greeted, setGreeted] = useState<string | null>(null);
@@ -43,6 +44,7 @@ export default function Home() {
             onClick={greet}
             title="Call &quot;greet&quot; from Rust"
           />
+          <DiscordOAuthButton onSuccess={(token) => console.log("Logged in with token:", token)} />
           <p className="break-words w-md">
             {greeted ?? "Click the button to call the Rust function"}
           </p>
