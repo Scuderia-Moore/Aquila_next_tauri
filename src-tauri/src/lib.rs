@@ -1,5 +1,7 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 use std::time::{SystemTime, UNIX_EPOCH};
+use tauri_plugin_oauth::init as oauth_init;
+use tauri_plugin_shell::init as shell_init;
 mod commands;
 
 #[tauri::command]
@@ -14,10 +16,11 @@ pub fn run() {
   tauri::Builder::default()
     .plugin(tauri_plugin_opener::init())
     // .plugin(tauri_plugin_shell::init())
-    .plugin(tauri_plugin_oauth::init())
+    .plugin(shell_init())
+    .plugin(oauth_init())
     .invoke_handler(tauri::generate_handler![
       greet,
-      commands::auth::start_server
+      commands::auth::start_discord_login
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
