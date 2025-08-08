@@ -38,13 +38,14 @@ export function DiscordOAuthButton() {
   };
 
   const handleLogout = async () => {
-    setIsLoggedIn(false);
-    setUsername(null);
-    setAvatarUrl(null);
     try {
       await invoke("logout_discord");
+      setIsLoggedIn(false);
+      setUsername(null);
+      setAvatarUrl(null);
+      console.log("Logout successful: tokens removed and state reset.");
     } catch (err) {
-      console.error("Failed to logout:", err);
+      console.error("Failed to logout (Rust side):", err);
     }
   };
 

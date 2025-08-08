@@ -20,7 +20,8 @@ pub fn run() {
     .plugin(oauth_init())
     .invoke_handler(tauri::generate_handler![
       greet,
-      commands::auth::start_discord_login
+      commands::auth::start_discord_login,
+      commands::auth::logout_discord
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

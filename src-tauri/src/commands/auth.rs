@@ -36,6 +36,7 @@ static ENVCONF: Lazy<EnvConfig> = Lazy::new(|| {
 // ===== 内部で使う定数 =====
 const DISCORD_AUTHORIZE_URL: &str = "https://discord.com/api/oauth2/authorize";
 const DISCORD_TOKEN_URL: &str = "https://discord.com/api/oauth2/token";
+const DISCORD_REVOKE_URL: &str = "https://discord.com/api/oauth2/token/revoke";
 
 // ===== 依存: rand, sha2, base64(url-safe no pad), url, reqwest, serde =====
 use rand::{distributions::Alphanumeric, Rng};
@@ -385,4 +386,29 @@ pub async fn refresh_discord_token() -> Result<(), String> {
 
     let token: TokenResp = resp.json().await.map_err(|e| e.to_string())?;
     save_tokens(&token)
+}
+
+#[command]
+pub async fn logout_discord(window: Window) -> Result<(), String> {
+    use keyring::Entry;
+
+    // Best-effort: try to remove the unified token entry
+    let entry = Entry::new(&ENVCONF.keyring_service, "oauth_tokens")
+        .map_err(|e| format!("keyring new ({}): {}", std::env::consts::OS, e))?;
+
+    // It's okay if the key doesn't exist; treat as success
+    match entry.delete_password() {
+        Ok(_) => {
+            let _ = window.emit("oauth:debug", "tokens removed from keychain");
+        }
+        Err(e) => {
+            // Some platforms return an error if the key is missing; we log and continue
+            let _ = window.emit("oauth:debug", format!("no tokens to remove or delete failed: {}", e));
+        }
+    }
+
+    // Optionally emit a final event so the UI can react if needed
+    let _ = window.emit("oauth:logged_out", "ok");
+
+    Ok(())
 }
